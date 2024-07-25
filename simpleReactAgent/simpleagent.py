@@ -2,7 +2,7 @@ import openai
 import os
 from dotenv import load_dotenv
 
-from pydantic import BaseModel, model_validator 
+from pydantic import BaseModel 
 _ = load_dotenv()
 from openai import OpenAI
 
