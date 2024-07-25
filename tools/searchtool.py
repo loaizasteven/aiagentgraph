@@ -30,7 +30,3 @@ class search_tool(BaseModel):
         getContent = lambda x:x.get('content')
 
         return list(map(getContent, results))
-
-a=search_tool()
-r=a.invoke(input={'a':'who is MJ'})
-print(r[:100])
