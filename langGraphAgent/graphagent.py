@@ -53,3 +53,42 @@ class Agent:
             results.append(ToolMessage(tool_call_id=t['id'], name=t['name'], content=str(result)))
         print("Back to the model!")
         return {'messages': results}
+
+
+if __name__ == "__main__":
+    import argparse
+    import os
+    import os.path as osp
+
+    prompt = """You are a smart research assistant. Use the search engine to look up information. \
+            You are allowed to make multiple calls (either together or in sequence). \
+            Only look up information when you are sure of what you want. \
+            If you need to look up some information before asking a follow up question, you are allowed to do that!
+            """
+
+    def fileParser():
+        parser = argparse.ArgumentParser(
+            prog='LangChain Agent',
+            description="Defines an agent using Langgraph"
+        )
+
+        parser.add_argument("--savepath", default=osp.join(os.path.dirname(__file__), 'graphagent.png'), type=str, required=False)
+        parser.add_argument("--savegraph", default=False, type=bool, required=False)
+        parser.add_argument("--run", default=False, type=bool, required=False)
+
+        return parser.parse_args()
+    
+    args_ = fileParser()
+
+    model = ChatOpenAI(model="gpt-4o")  #reduce inference cost
+    tool = TavilySearchResults(max_results=2)
+    abot = Agent(model, [tool], system=prompt)
+    
+    if args_.run:
+        messages = [HumanMessage(content="What is the weather in sf?")]
+        result = abot.graph.invoke({"messages": messages})
+        print(result['messages'][-1].content)
+
+    if args_.savegraph:
+        abot.graph.get_graph().draw_png(args_.savepath)
+        
