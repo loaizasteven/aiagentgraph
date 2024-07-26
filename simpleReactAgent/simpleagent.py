@@ -25,7 +25,7 @@ class Agent(BaseModel):
 
 	def execute(self):
 		completion = self.client.chat.completions.create(
-                        model="gpt-4o", 
+                        model="gpt-4o-mini", 
                         temperature=0,
                         messages=self.messages)
 		return completion.choices[0].message.content		
