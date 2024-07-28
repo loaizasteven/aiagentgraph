@@ -5,6 +5,14 @@ from langchain_core.messages import AnyMessage, SystemMessage, HumanMessage, Too
 from langchain_openai import ChatOpenAI
 from langchain_community.tools.tavily_search import TavilySearchResults
 
+import os
+import os.path as osp
+import sys
+
+script_dir = osp.dirname(__file__)
+sys.path.insert(0, osp.dirname(script_dir))
+from tools import searchtool
+
 
 class AgentState(TypedDict):
     "Class updates agent states with appended messages, not overwriting the previous state"
@@ -57,8 +65,6 @@ class Agent:
 
 if __name__ == "__main__":
     import argparse
-    import os
-    import os.path as osp
 
     prompt = """You are a smart research assistant. Use the search engine to look up information. \
             You are allowed to make multiple calls (either together or in sequence). \
@@ -72,16 +78,16 @@ if __name__ == "__main__":
             description="Defines an agent using Langgraph"
         )
 
-        parser.add_argument("--savepath", default=osp.join(os.path.dirname(__file__), 'graphagent.png'), type=str, required=False)
+        parser.add_argument("--savepath", default=osp.join(script_dir, 'graphagent.png'), type=str, required=False)
         parser.add_argument("--savegraph", default=False, type=bool, required=False)
-        parser.add_argument("--run", default=False, type=bool, required=False)
+        parser.add_argument("--run", default=True, type=bool, required=False)
 
         return parser.parse_args()
     
     args_ = fileParser()
 
     model = ChatOpenAI(model="gpt-4o")  #reduce inference cost
-    tool = TavilySearchResults(max_results=2)
+    tool = searchtool.search_tool()
     abot = Agent(model, [tool], system=prompt)
     
     if args_.run:
@@ -91,4 +97,3 @@ if __name__ == "__main__":
 
     if args_.savegraph:
         abot.graph.get_graph().draw_png(args_.savepath)
-        
