@@ -2,10 +2,10 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.messages.tool import ToolCall
 
 from typing import Dict, Union, List
-from pydantic import BaseModel
+from langchain_community.tools import BaseTool
 
 
-class search_tool(BaseModel):
+class search_tool(BaseTool):
     """Uses Tavily Search API, assumes TAVILY_API_KEY is set in env variables
 
     Attributes:
@@ -15,7 +15,11 @@ class search_tool(BaseModel):
     """
     max_results: int = 4
     name: str = 'search_tool'
+    description: str = 'This tool search information from the Tavily Search API to provide context to LLMs for user queries'
     search: TavilySearchResults = TavilySearchResults(max_results=max_results)
+
+    def _run(self):
+        pass
 
     def invoke(self, input:Union[str, Dict, ToolCall])-> List:
         """Wrapper for native invoke, reducting the output content.
