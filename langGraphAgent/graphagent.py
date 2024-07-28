@@ -9,6 +9,8 @@ import os
 import os.path as osp
 import sys
 
+import pydantic
+
 script_dir = osp.dirname(__file__)
 sys.path.insert(0, osp.dirname(script_dir))
 from tools import searchtool
@@ -57,7 +59,11 @@ class Agent:
                 print("\n ....bad tool name....")
                 result = "bad tool name, retry"  # instruct LLM to retry if bad
             else:
-                result = self.tools[t['name']].invoke(t['args'])
+                try:
+                    result = self.tools[t['name']].invoke(t['args'])
+                except pydantic.v1.error_wrappers.ValidationError:
+                    print(f"\n Validation Error; Likely missing tool input arg {t.get('args')}")
+                    result = "Tool argument not passed, retry"
             results.append(ToolMessage(tool_call_id=t['id'], name=t['name'], content=str(result)))
         print("Back to the model!")
         return {'messages': results}
