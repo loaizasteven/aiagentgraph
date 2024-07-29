@@ -84,7 +84,10 @@ if __name__ == "__main__":
             description="Defines an agent using Langgraph"
         )
 
-        parser.add_argument("--savepath", default=osp.join(script_dir, 'graphagent.png'), type=str, required=False)
+        savepoint = osp.join(script_dir, 'visual')
+        os.makedirs(savepoint, exist_ok=True)
+        
+        parser.add_argument("--savepath", default=osp.join(savepoint, 'graphagent.png'), type=str, required=False)
         parser.add_argument("--savegraph", default=False, type=bool, required=False)
         parser.add_argument("--run", default=True, type=bool, required=False)
 
