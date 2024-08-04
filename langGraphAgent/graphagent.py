@@ -4,16 +4,21 @@ import operator
 from langchain_core.messages import AnyMessage, SystemMessage, HumanMessage, ToolMessage
 from langchain_openai import ChatOpenAI
 from langchain_community.tools.tavily_search import TavilySearchResults
+from langgraph.checkpoint.sqlite import SqliteSaver
 
 import os
 import os.path as osp
 import sys
+import uuid
 
 import pydantic
 
 script_dir = osp.dirname(__file__)
 sys.path.insert(0, osp.dirname(script_dir))
 from tools import searchtool
+
+# Sqllit connection for in-memory persistance
+memory = SqliteSaver.from_conn_string(":memory:")
 
 
 class AgentState(TypedDict):
@@ -23,7 +28,7 @@ class AgentState(TypedDict):
 
 class Agent:
 
-    def __init__(self, model, tools, system=""):
+    def __init__(self, model, tools, checkpointer, system=""):
         self.system = system
         graph = StateGraph(AgentState)
         graph.add_node("llm", self.call_openai)
@@ -35,7 +40,7 @@ class Agent:
         )
         graph.add_edge("action", "llm")
         graph.set_entry_point("llm")
-        self.graph = graph.compile()
+        self.graph = graph.compile(checkpointer=checkpointer)
         self.tools = {t.name: t for t in tools}
         self.model = model.bind_tools(tools)
 
@@ -97,12 +102,27 @@ if __name__ == "__main__":
 
     model = ChatOpenAI(model="gpt-4o")  #reduce inference cost
     tool = searchtool.search_tool()
-    abot = Agent(model, [tool], system=prompt)
+    abot = Agent(model, [tool], checkpointer=memory, system=prompt)
     
     if args_.run:
+        # UUID will serve as the sessionid, we want to have a deterministic customerid so that we can return to the state
+        # in subsequent conversations
+        thread_id = uuid.uuid1().hex
         messages = [HumanMessage(content="What is the weather in sf?")]
-        result = abot.graph.invoke({"messages": messages})
-        print(result['messages'][-1].content)
+        thread = {"configurable": {"thread_id": f"{thread_id}"}}
+        for event in abot.graph.stream({"messages": messages}, thread, stream_mode="values"):
+            event["messages"][-1].pretty_print()
+
+        # Reinitiate bot 
+        # Using the same thread, with in-memory checkpoint new bot can start where we left off
+        second_bot = Agent(model, [tool], checkpointer=memory, system=prompt)
+        messages = [HumanMessage(content="Are you sure?")]
+        for event in second_bot.graph.stream({"messages": messages}, thread, stream_mode="values"):
+            event["messages"][-1].pretty_print()
+
+        # Memory
+        print("================================ Sql Memory Chkpt =================================")
+        print(list(memory.list(thread))[-1])
 
     if args_.savegraph:
         abot.graph.get_graph().draw_png(args_.savepath)
