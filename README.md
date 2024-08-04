@@ -16,12 +16,22 @@ The following steps are required to save graph rendering localing on the reposit
 
 # LLM-Agents
 
-## Simple Reach Agent
+## Simple ReAct Agent
 
 ## LangGraph Agent
 
-Visual of the simple Langgraph Agent utilizing a search tool that leverages the TavillySearch API.
+Visual of the simple Langgraph Agent utilizing a search tool that leverages the TavillySearch API. 
+* code: [`/langGraphAgent/graphagent.py`](./langGraphAgent/graphagent.py)
 
+### Persistance ("memory") to graph
+Some Applications need memory to share context across multiple interactions/sessions. In LangGraph, memory is provided for any StateGraph through Checkpointers such as `SqliteSaver`. This checkpointer is used as an in-memory database, if your machine memory is a concern LangGraph we can use *Redis* as our cache application
+
+This is an important feature, for example, when building a customer facing chatbot and the requirements are to have the chatbot recall previous states of the conversation and have the user resume from that state.
+
+
+
+### Graph Visualization
+Run python script with flag `--savegraph`.
 ![image](langGraphAgent/visual/graphagent.png)
 
 # Reference
