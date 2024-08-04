@@ -11,8 +11,6 @@ import os.path as osp
 import sys
 import uuid
 
-from pprint import pprint
-
 import pydantic
 
 script_dir = osp.dirname(__file__)
