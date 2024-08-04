@@ -9,6 +9,9 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 import os
 import os.path as osp
 import sys
+import uuid
+
+from pprint import pprint
 
 import pydantic
 
@@ -104,8 +107,9 @@ if __name__ == "__main__":
     abot = Agent(model, [tool], checkpointer=memory, system=prompt)
     
     if args_.run:
+        thread_id = uuid.uuid1().hex
         messages = [HumanMessage(content="What is the weather in sf?")]
-        thread = {"configurable": {"thread_id": "1"}}
+        thread = {"configurable": {"thread_id": f"{thread_id}"}}
         for event in abot.graph.stream({"messages": messages}, thread, stream_mode="values"):
             event["messages"][-1].pretty_print()
 
@@ -115,6 +119,10 @@ if __name__ == "__main__":
         messages = [HumanMessage(content="Are you sure?")]
         for event in second_bot.graph.stream({"messages": messages}, thread, stream_mode="values"):
             event["messages"][-1].pretty_print()
+
+        # Memory
+        print("================================ Sql Memory Chkpt =================================")
+        print(list(memory.list(thread))[-1])
 
     if args_.savegraph:
         abot.graph.get_graph().draw_png(args_.savepath)
