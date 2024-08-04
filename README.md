@@ -23,3 +23,11 @@ The following steps are required to save graph rendering localing on the reposit
 Visual of the simple Langgraph Agent utilizing a search tool that leverages the TavillySearch API.
 
 ![image](langGraphAgent/visual/graphagent.png)
+
+# Reference
+
+[1]: Google Research. "React: Synergizing Reasoning and Acting in Language Models." Google AI Blog, 4 Aug. 2023, [link](https://research.google/blog/react-synergizing-reasoning-and-acting-in-language-models/).
+
+[2]: Madaan, A. et.al. "Self-Refine: Iterative Reginement with Self-Feedback." 2023, [link](https://selfrefine.info)
+
+[3]: Ridnik, T. et al. "Code Generation with AlphaCodium: From Prompt Engineering to Flow Engineering" 16 Jan. 2024, [link](https://arxiv.org/pdf/2401.08500)
