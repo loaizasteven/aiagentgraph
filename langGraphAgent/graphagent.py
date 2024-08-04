@@ -4,6 +4,7 @@ import operator
 from langchain_core.messages import AnyMessage, SystemMessage, HumanMessage, ToolMessage
 from langchain_openai import ChatOpenAI
 from langchain_community.tools.tavily_search import TavilySearchResults
+from langgraph.checkpoint.sqlite import SqliteSaver
 
 import os
 import os.path as osp
@@ -15,6 +16,9 @@ script_dir = osp.dirname(__file__)
 sys.path.insert(0, osp.dirname(script_dir))
 from tools import searchtool
 
+# Sqllit connection for in-memory persistance
+memory = SqliteSaver.from_conn_string(":memory:")
+
 
 class AgentState(TypedDict):
     "Class updates agent states with appended messages, not overwriting the previous state"
@@ -23,7 +27,7 @@ class AgentState(TypedDict):
 
 class Agent:
 
-    def __init__(self, model, tools, system=""):
+    def __init__(self, model, tools, checkpointer, system=""):
         self.system = system
         graph = StateGraph(AgentState)
         graph.add_node("llm", self.call_openai)
@@ -35,7 +39,7 @@ class Agent:
         )
         graph.add_edge("action", "llm")
         graph.set_entry_point("llm")
-        self.graph = graph.compile()
+        self.graph = graph.compile(checkpointer=checkpointer)
         self.tools = {t.name: t for t in tools}
         self.model = model.bind_tools(tools)
 
@@ -97,7 +101,7 @@ if __name__ == "__main__":
 
     model = ChatOpenAI(model="gpt-4o")  #reduce inference cost
     tool = searchtool.search_tool()
-    abot = Agent(model, [tool], system=prompt)
+    abot = Agent(model, [tool], checkpointer=memory, system=prompt)
     
     if args_.run:
         messages = [HumanMessage(content="What is the weather in sf?")]
