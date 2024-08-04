@@ -1,6 +1,8 @@
 # Introduction
 This repo follows the deeplearning.ai course "AI Agents in LangGraph", with some modifications.
 
+[![LangGraph Version](https://img.shields.io/badge/langgraph-0.0.53-green)](https://pypi.org/project/langgraph/0.0.53/)
+
 ## Installation for Mac
 The following steps are required to save graph rendering localing on the repository.
 
