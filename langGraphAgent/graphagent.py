@@ -105,8 +105,16 @@ if __name__ == "__main__":
     
     if args_.run:
         messages = [HumanMessage(content="What is the weather in sf?")]
-        result = abot.graph.invoke({"messages": messages})
-        print(result['messages'][-1].content)
+        thread = {"configurable": {"thread_id": "1"}}
+        for event in abot.graph.stream({"messages": messages}, thread, stream_mode="values"):
+            event["messages"][-1].pretty_print()
+
+        # Reinitiate bot 
+        # Using the same thread, with in-memory checkpoint new bot can start where we left off
+        second_bot = Agent(model, [tool], checkpointer=memory, system=prompt)
+        messages = [HumanMessage(content="Are you sure?")]
+        for event in second_bot.graph.stream({"messages": messages}, thread, stream_mode="values"):
+            event["messages"][-1].pretty_print()
 
     if args_.savegraph:
         abot.graph.get_graph().draw_png(args_.savepath)
