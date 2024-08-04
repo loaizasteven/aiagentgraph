@@ -105,6 +105,8 @@ if __name__ == "__main__":
     abot = Agent(model, [tool], checkpointer=memory, system=prompt)
     
     if args_.run:
+        # UUID will serve as the sessionid, we want to have a deterministic customerid so that we can return to the state
+        # in subsequent conversations
         thread_id = uuid.uuid1().hex
         messages = [HumanMessage(content="What is the weather in sf?")]
         thread = {"configurable": {"thread_id": f"{thread_id}"}}
