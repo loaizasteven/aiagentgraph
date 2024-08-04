@@ -1,6 +1,4 @@
 from langgraph.graph import StateGraph, END
-from typing import TypedDict, Annotated
-import operator
 from langchain_core.messages import AnyMessage, SystemMessage, HumanMessage, ToolMessage
 from langchain_openai import ChatOpenAI
 from langchain_community.tools.tavily_search import TavilySearchResults
@@ -16,14 +14,10 @@ import pydantic
 script_dir = osp.dirname(__file__)
 sys.path.insert(0, osp.dirname(script_dir))
 from tools import searchtool
+from utils.agentutils import AgentState
 
 # Sqllit connection for in-memory persistance
 memory = SqliteSaver.from_conn_string(":memory:")
-
-
-class AgentState(TypedDict):
-    "Class updates agent states with appended messages, not overwriting the previous state"
-    messages: Annotated[list[AnyMessage], operator.add]
 
 
 class Agent:
