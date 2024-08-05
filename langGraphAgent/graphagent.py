@@ -1,6 +1,5 @@
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import AnyMessage, SystemMessage, HumanMessage, ToolMessage
-from langchain_openai import ChatOpenAI
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langgraph.checkpoint.sqlite import SqliteSaver
 
@@ -13,6 +12,7 @@ import pydantic
 
 script_dir = osp.dirname(__file__)
 sys.path.insert(0, osp.dirname(script_dir))
+from llms.models import ChatOpenAIRateLimited
 from tools import searchtool
 from utils.agentutils import AgentState
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     
     args_ = fileParser()
 
-    model = ChatOpenAI(model="gpt-4o")  #reduce inference cost
+    model = ChatOpenAIRateLimited() 
     tool = searchtool.search_tool()
     abot = Agent(model, [tool], checkpointer=memory, system=prompt)
     
