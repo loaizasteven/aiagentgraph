@@ -94,7 +94,9 @@ graph.update_state(thread, current_values.values)
 ```
 
 ### Breakpoints (Human-In-The-Loop)
+Human in the Loop are essential interations between person(s) and LLM-Agents. Adding breakpoints in the graph, allow it to stop at specific nodes, seek human intervention/approval before proceeding. This can be used when there is a sensitive step that will happen next, and we require final approval/modification from a live person.
 
+[Interactive Python Example](/langGraphAgent/humanloopagent.py)
 
 ### Graph Visualization
 Run python script with flag `--savegraph`.
