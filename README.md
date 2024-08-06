@@ -1,3 +1,8 @@
+# Introduction
+This repo follows the deeplearning.ai course "AI Agents in LangGraph", with some modifications.
+
+[![LangGraph Version](https://img.shields.io/badge/langgraph-0.0.53-green)](https://pypi.org/project/langgraph/0.0.53/)
+
 ## Installation for Mac
 The following steps are required to save graph rendering localing on the repository.
 
@@ -23,12 +28,75 @@ The following steps are required to save graph rendering localing on the reposit
 Visual of the simple Langgraph Agent utilizing a search tool that leverages the TavillySearch API. 
 * code: [`/langGraphAgent/graphagent.py`](./langGraphAgent/graphagent.py)
 
-### Persistance ("memory") to graph
+### Persistance ("memory") To Graph
 Some Applications need memory to share context across multiple interactions/sessions. In LangGraph, memory is provided for any StateGraph through Checkpointers such as `SqliteSaver`. This checkpointer is used as an in-memory database, if your machine memory is a concern LangGraph we can use *Redis* as our cache application
 
 This is an important feature, for example, when building a customer facing chatbot and the requirements are to have the chatbot recall previous states of the conversation and have the user resume from that state.
 
+### State Memory
+With state memory the Agent can be invoked from any section of its graph with the use of its history and checkpoints.
 
+## Mid-Execution Failures
+Programs fail, it happens. Fortunately, with the use of our memory/checkpoint we can make necessary updates to our code, re-initiate our class, and start from a saved checkpoint. 
+
+Suppose you are working with the [`Agent`](/langGraphAgent/graphagent.py) and you have some "bad code" in the `take_action` method:
+
+```python
+Class Agent:
+...
+   def take_action(self, state: AgentState):
+      raise()
+      ...
+   ...
+```
+
+Depending on the size of the graph and/or costs it does not make sense to start the execution from the beginning. Instead, we would like to resume from the faulty state after making the neccessary fixes. This is made possible with the thread config and memory/checkpoint.
+
+```python
+# Fix method
+Class Agent:
+...
+   def take_action(self, state: AgentState):
+      #raise()
+      ...
+   ...
+
+# Initiate Agent class
+abot = Agent(model, [tool], system=prompt, checkpointer=memory)
+
+# Current/Next stage
+print(f"Graph will start from current configuration and run the following stage in the graph: {abot.graph.get_state(thread).next}")
+
+# Run from latest checkpoint
+for event in abot.graph.stream(input=None, config=thread):
+   for v in event.values():
+      print(v)
+```
+## Agent Updates (Time-Travel)
+Additionally, Agent states allow us to time-travel to a particular point on the graph with the use of the `thread_ts`. This key identifies a place in the state within the current thread.
+
+We can use the iterator `graph.get_state_history(thread)` to obtain the `thread_ts` and use it to invoke/stream our agent from that state on the graph.
+
+```python
+for event in abot.graph.stream(input=None, config={"configurable": {"thread_id": "1", "thread_ts": {value}}):
+   for v in event.values():
+      print(v)
+```
+
+This is useful for a few reasons updates to future nodes in the graph and modification of intermediate stages within the graph. For the latter you can get the state, with the use of the `thread_ts`, modify it, and then update the history using:
+
+```python
+current_values = abot.graph.get_state(thread)
+
+# ... modify current_values
+
+graph.update_state(thread, current_values.values)
+```
+
+### Breakpoints (Human-In-The-Loop)
+Human in the Loop are essential interations between person(s) and LLM-Agents. Adding breakpoints in the graph, allow it to stop at specific nodes, seek human intervention/approval before proceeding. This can be used when there is a sensitive step that will happen next, and we require final approval/modification from a live person.
+
+[Interactive Python Example](/langGraphAgent/humanloopagent.py)
 
 ### Graph Visualization
 Run python script with flag `--savegraph`.

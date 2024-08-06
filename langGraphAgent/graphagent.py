@@ -1,8 +1,5 @@
 from langgraph.graph import StateGraph, END
-from typing import TypedDict, Annotated
-import operator
-from langchain_core.messages import AnyMessage, SystemMessage, HumanMessage, ToolMessage
-from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_core.messages import SystemMessage, HumanMessage, ToolMessage
 from langgraph.checkpoint.sqlite import SqliteSaver
 
 import os
@@ -11,38 +8,59 @@ import sys
 import uuid
 
 import pydantic
+from pydantic import BaseModel
+from typing import List, Any, Dict, Union
 
 script_dir = osp.dirname(__file__)
 sys.path.insert(0, osp.dirname(script_dir))
 from llms.models import ChatOpenAIRateLimited
 from tools import searchtool
+from utils.agentutils import AgentState
 
 # Sqllit connection for in-memory persistance
 memory = SqliteSaver.from_conn_string(":memory:")
 
 
-class AgentState(TypedDict):
-    "Class updates agent states with appended messages, not overwriting the previous state"
-    messages: Annotated[list[AnyMessage], operator.add]
+class Agent(BaseModel):
+    """Agent based on LangGraph
 
+    A class for creating instances of an Agent
 
-class Agent:
+    Attributes:
+        graph: StateGraph instance
+        description: System Message to the LLM
+        tools_: List of tools to bind to the model
+        tools: Attribute provides a dict of the tool name and method
+        uncompiledgraph: graph state before compiling
+        model: langchain model objects
+        checkpointer: Any persistance memory to pass as a checkpoint to the graph
 
-    def __init__(self, model, tools, checkpointer, system=""):
-        self.system = system
-        graph = StateGraph(AgentState)
-        graph.add_node("llm", self.call_openai)
-        graph.add_node("action", self.take_action)
-        graph.add_conditional_edges(
+    """
+    graph: Union[StateGraph, None] = None
+    description: str = ""
+    tools_: List[Any]
+    tools: Dict[str, Any] = {}
+    uncompiledgraph: StateGraph
+    model: Any
+    checkpointer: Any
+
+    class Config:
+            arbitrary_types_allowed = True
+            
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.uncompiledgraph.add_node("llm", self.call_openai)
+        self.uncompiledgraph.add_node("action", self.take_action)
+        self.uncompiledgraph.add_conditional_edges(
             "llm",
             self.exists_action,
             {True: "action", False: END}
         )
-        graph.add_edge("action", "llm")
-        graph.set_entry_point("llm")
-        self.graph = graph.compile(checkpointer=checkpointer)
-        self.tools = {t.name: t for t in tools}
-        self.model = model.bind_tools(tools)
+        self.uncompiledgraph.add_edge("action", "llm")
+        self.uncompiledgraph.set_entry_point("llm")
+        self.graph = self.uncompiledgraph.compile(checkpointer=self.checkpointer)
+        self.tools = {t.name: t for t in self.tools_}
+        self.model = self.model.bind_tools(self.tools_)
 
     def exists_action(self, state: AgentState):
         result = state['messages'][-1]
@@ -50,8 +68,8 @@ class Agent:
 
     def call_openai(self, state: AgentState):
         messages = state['messages']
-        if self.system:
-            messages = [SystemMessage(content=self.system)] + messages
+        if self.description:
+            messages = [SystemMessage(content=self.description)] + messages
         message = self.model.invoke(messages)
         return {'messages': [message]}
 
@@ -94,7 +112,7 @@ if __name__ == "__main__":
         
         parser.add_argument("--savepath", default=osp.join(savepoint, 'graphagent.png'), type=str, required=False)
         parser.add_argument("--savegraph", default=False, type=bool, required=False)
-        parser.add_argument("--run", default=True, type=bool, required=False)
+        parser.add_argument("--run", default=False, type=bool, required=False)
 
         return parser.parse_args()
     
@@ -102,7 +120,7 @@ if __name__ == "__main__":
 
     model = ChatOpenAIRateLimited() 
     tool = searchtool.search_tool()
-    abot = Agent(model, [tool], checkpointer=memory, system=prompt)
+    abot = Agent(uncompiledgraph= StateGraph(AgentState), model=model, tools_=[tool], checkpointer=memory, description=prompt)
     
     if args_.run:
         # UUID will serve as the sessionid, we want to have a deterministic customerid so that we can return to the state
@@ -115,7 +133,7 @@ if __name__ == "__main__":
 
         # Reinitiate bot 
         # Using the same thread, with in-memory checkpoint new bot can start where we left off
-        second_bot = Agent(model, [tool], checkpointer=memory, system=prompt)
+        second_bot = Agent(uncompiledgraph= StateGraph(AgentState), model=model, tools_=[tool], checkpointer=memory, description=prompt)
         messages = [HumanMessage(content="Are you sure?")]
         for event in second_bot.graph.stream({"messages": messages}, thread, stream_mode="values"):
             event["messages"][-1].pretty_print()
