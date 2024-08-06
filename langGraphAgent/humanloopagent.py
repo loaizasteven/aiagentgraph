@@ -47,7 +47,6 @@ class AgentHIL(Agent):
                 raise HumanInterrupt()
             
 
-
 if __name__ == "__main__":
     from langgraph.graph import StateGraph
     from langgraph.checkpoint.sqlite import SqliteSaver
