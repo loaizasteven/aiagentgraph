@@ -112,7 +112,7 @@ if __name__ == "__main__":
         
         parser.add_argument("--savepath", default=osp.join(savepoint, 'graphagent.png'), type=str, required=False)
         parser.add_argument("--savegraph", default=False, type=bool, required=False)
-        parser.add_argument("--run", default=True, type=bool, required=False)
+        parser.add_argument("--run", default=False, type=bool, required=False)
 
         return parser.parse_args()
     
