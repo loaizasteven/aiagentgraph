@@ -28,6 +28,9 @@ The following steps are required to save graph rendering localing on the reposit
 Visual of the simple Langgraph Agent utilizing a search tool that leverages the TavillySearch API. 
 * code: [`/langGraphAgent/graphagent.py`](./langGraphAgent/graphagent.py)
 
+### Known Issues
+The `take_action()` method/node has a failsafe to invoke the LLM and have it pass the required arguments for the tool call. In `langchain-openai>=0.1.21rc1` there is a new kwarg [`struct=True`](https://python.langchain.com/v0.2/docs/integrations/chat/openai/#stricttrue) to enforce the tools argument schema.
+
 ### Persistance ("memory") To Graph
 Some Applications need memory to share context across multiple interactions/sessions. In LangGraph, memory is provided for any StateGraph through Checkpointers such as `SqliteSaver`. This checkpointer is used as an in-memory database, if your machine memory is a concern LangGraph we can use *Redis* as our cache application
 
