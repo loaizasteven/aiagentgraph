@@ -10,7 +10,7 @@ import json
 from openai import OpenAI
 
 from pydantic import BaseModel
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 file_dir = osp.dirname(__file__)
 sys.path.insert(0, file_dir)
@@ -21,6 +21,7 @@ class ReActAgent(BaseModel):
     system: Optional[str] = None
     messages: Optional[List[Dict]] = []
     model: str = 'gpt-4o'
+    action_re: Any = None
 
     @staticmethod
     def createclient():
@@ -48,13 +49,42 @@ class ReActAgent(BaseModel):
         
         return result
     
+    def parseaction(self):
+        self.action_re = re.compile('^Action: (\\w+): (.*)$')   # python regular expression to selection action
+    
+    def query(self, question:str, max_turns:int =5, i: int = 0):
+        self.parseaction()
+        next_prompt = question
+        while i < max_turns:
+            i += 1
+            result = self(next_prompt)
+            print(result)
+            actions = [self.action_re.match(a) for a in result.split('\n') if self.action_re.match(a)]
+            if actions:
+                # There is an action to run
+                action, action_input = actions[0].groups()
+                if action not in known_actions:
+                    raise Exception("Unknown action: {}: {}".format(action, action_input))
+                print(" -- running {} {}".format(action, action_input))
+                observation = known_actions[action](action_input)
+                print("Observation:", observation)
+                next_prompt = "Observation: {}".format(observation)
+            else:
+                return
+    
+
 if __name__ == "__main__":
     import json
+
+    from tools.agenttools import average_dog_weight, calculate
+    known_actions = {
+        "calculate": calculate,
+        "average_dog_weight": average_dog_weight
+    }
 
     prompt_dict = json.load(open(osp.join(file_dir, 'config/prompts.json'), 'r'))
     agent = ReActAgent(
         prompt=prompt_dict
     )
     agent.setup()
-    response = agent('hi')
-    print(response)
+    response = agent.query("How much does a toy poodle weigh?")
