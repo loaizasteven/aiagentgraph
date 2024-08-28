@@ -1,7 +1,14 @@
-# Introduction
-This repo follows the deeplearning.ai course "AI Agents in LangGraph", with some modifications.
+> AI Agents with LangGraph
+> [![LangGraph Version](https://img.shields.io/badge/langgraph-0.0.53-green)](https://pypi.org/project/langgraph/0.0.53/)
 
-[![LangGraph Version](https://img.shields.io/badge/langgraph-0.0.53-green)](https://pypi.org/project/langgraph/0.0.53/)
+# Introduction
+Developed a cutting-edge Research Assistant Agent that utilizes a search tool to fetch up-to-date information, generating informed responses to user queries. Built on top of LangGraph AgentState, our agent leverages the powerful GPT-4O LLM model and integrates seamlessly with the TavillySearch API for external search capabilities.
+
+Key Features:
+- Contextual Understanding: The agent comprehends user queries and decides when to initiate search actions, ensuring optimal responses.
+- Parallel Search Calls: Equipped to handle multiple searches simultaneously, enhancing efficiency.
+- Rate Limiting: Implemented rate limiting wrappers to prevent excessive resource calls.
+- Human-in-the-Loop: Incorporated breakpoints for human intervention, ensuring accuracy and control.
 
 ## Installation for Mac
 The following steps are required to save graph rendering localing on the repository.
@@ -112,3 +119,6 @@ Run python script with flag `--savegraph`.
 [2]: Madaan, A. et.al. "Self-Refine: Iterative Reginement with Self-Feedback." 2023, [link](https://selfrefine.info)
 
 [3]: Ridnik, T. et al. "Code Generation with AlphaCodium: From Prompt Engineering to Flow Engineering" 16 Jan. 2024, [link](https://arxiv.org/pdf/2401.08500)
+
+# Contributions
+This repo follows the `deeplearning.ai` course "AI Agents in LangGraph", with some modifications.
