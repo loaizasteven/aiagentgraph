@@ -70,6 +70,7 @@ class ReActAgent(BaseModel):
                 print("Observation:", observation)
                 next_prompt = "Observation: {}".format(observation)
             else:
+                print('END \n')
                 return
     
 
@@ -87,4 +88,5 @@ if __name__ == "__main__":
         prompt=prompt_dict
     )
     agent.setup()
-    response = agent.query("How much does a toy poodle weigh?")
+    agent.query("How much does a toy poodle weigh?")
+    agent.query("I have 2 dogs, a border collie and a scottish terrier. What is their combined weight")
