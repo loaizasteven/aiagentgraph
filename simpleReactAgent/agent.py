@@ -1,8 +1,5 @@
-import openai
 import re
-import httpx
 
-import os
 import os.path as osp
 import sys
 import json
