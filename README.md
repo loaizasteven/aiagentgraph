@@ -29,6 +29,12 @@ The following steps are required to save graph rendering localing on the reposit
 # LLM-Agents
 
 ## Simple ReAct Agent
+A ReAct model is a an Agent that performs both Reasoning and Actions task, based on [[1]](#reference). This project implements as simplified ReAct pattern from scratch using python. The main essense of this framework is as follows:
+1. LLM thinks on what to do
+2. Decides on what action to take 
+3. Execute that actions (or calls an external tool to take the action) 
+4. An observations is returned 
+5. Repeat from (2)
 
 ## LangGraph Agent
 
