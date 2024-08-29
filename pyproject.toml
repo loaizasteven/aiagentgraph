@@ -4,8 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aiagentgraph"
-src = "lib"
-packages = [{include = "aiagentgraph"}]
 dependencies = [
     "langchain==0.2.0",
     "langchain-community==0.2.0",
@@ -14,6 +12,10 @@ dependencies = [
     "langsmith==0.1.93",
     "openai==1.30.1"
 ]
+
+[tool.setuptools]
+packages = ["aiagentgraph"]
+src = "lib"
 
 [tool.setuptools.dynamic]
 version = {attr = "aiagentgraph.__version__"} 
