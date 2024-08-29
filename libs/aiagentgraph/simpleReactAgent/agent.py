@@ -40,7 +40,7 @@ class ReActAgent(BaseModel):
 
         return completion.choices[0].message.content
     
-    def __call__(self, message:str):
+    def invoke(self, message:str):
         self.messages.append({"role": "user", "content": message})
         result = self.execute()
         self.messages.append({"role": "assistant", "content": result})
@@ -55,7 +55,7 @@ class ReActAgent(BaseModel):
         next_prompt = question
         while i < max_turns:
             i += 1
-            result = self(next_prompt)
+            result = self.invoke(next_prompt)
             print(result)
             actions = [self.action_re.match(a) for a in result.split('\n') if self.action_re.match(a)]
             if actions:
