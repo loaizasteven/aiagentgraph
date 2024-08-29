@@ -15,6 +15,7 @@ sys.path.insert(0, file_dir)
 
 class ReActAgent(BaseModel):
     prompt: Dict[str, str]
+    known_actions: Dict[str, Any]
     system: Optional[str] = None
     messages: Optional[List[Dict]] = []
     model: str = 'gpt-4o'
@@ -60,10 +61,10 @@ class ReActAgent(BaseModel):
             if actions:
                 # There is an action to run
                 action, action_input = actions[0].groups()
-                if action not in known_actions:
+                if action not in self.known_actions:
                     raise Exception("Unknown action: {}: {}".format(action, action_input))
                 print(" -- running {} {}".format(action, action_input))
-                observation = known_actions[action](action_input)
+                observation = self.known_actions[action](action_input)
                 print("Observation:", observation)
                 next_prompt = "Observation: {}".format(observation)
             else:
@@ -75,14 +76,14 @@ if __name__ == "__main__":
     import json
 
     from tools.agenttools import average_dog_weight, calculate
-    known_actions = {
-        "calculate": calculate,
-        "average_dog_weight": average_dog_weight
-    }
 
     prompt_dict = json.load(open(osp.join(file_dir, 'config/prompts.json'), 'r'))
     agent = ReActAgent(
-        prompt=prompt_dict
+        prompt=prompt_dict,
+        known_actions = {
+        "calculate": calculate,
+        "average_dog_weight": average_dog_weight
+        }
     )
     agent.setup()
     agent.query("How much does a toy poodle weigh?")
