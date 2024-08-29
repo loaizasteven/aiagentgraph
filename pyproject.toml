@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aiagentgraph"
-version = {attr = "aiagentgraph.__version__"} 
+version = '0.0.1'
 dependencies = [
     "langchain==0.2.0",
     "langchain-community==0.2.0",
