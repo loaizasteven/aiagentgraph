@@ -1,5 +1,5 @@
 > AI Agents with LangGraph
-> [![pypi](https://img.shields.io/badge/langgraph-0.0.2-orange)](https://pypi.org/project/aiagentgraph/)
+> [![pypi](https://img.shields.io/badge/langgraph-0.0.53-orange)](https://pypi.org/project/aiagentgraph/)
 
 # Introduction
 Developed a cutting-edge Research Assistant Agent that utilizes a search tool to fetch up-to-date information, generating informed responses to user queries. Built on top of LangGraph AgentState, our agent leverages the powerful GPT-4O LLM model and integrates seamlessly with the TavillySearch API for external search capabilities.
