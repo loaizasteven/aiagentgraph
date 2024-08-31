@@ -1,11 +1,11 @@
 #!/usr/bin/python    
 
-# Repo AI-Agent-in-LangGraph
+REPO="aiagentgraph"
 # env
 DIRECTORY="agent_env"
 
 function activate () {
-  source $HOME/git/AI-Agents-in-LangGraph/$DIRECTORY/bin/activate
+  source $HOME/git/$REPO/$DIRECTORY/bin/activate
   # logging info
   echo "Currently activated $VIRTUAL_ENV"
   python --version
