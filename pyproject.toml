@@ -12,7 +12,7 @@ readme = "README.md"
 dependencies = [
     "langchain==0.2.0",
     "langchain-community==0.2.0",
-    "langchain-openai==0.1.7",
+    "langchain-openai==0.1.21rc1",
     "langgraph==0.0.53",
     "langsmith==0.1.93",
     "openai==1.30.1"
