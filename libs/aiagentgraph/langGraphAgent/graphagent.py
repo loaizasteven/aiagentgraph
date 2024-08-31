@@ -59,9 +59,16 @@ class Agent(BaseModel):
         self.uncompiledgraph.add_edge("action", "llm")
         self.uncompiledgraph.set_entry_point("llm")
         self.graph = self.uncompiledgraph.compile(checkpointer=self.checkpointer)
-        self.tools = {t.name: t for t in self.tools_}
+        self.tools = {self.get_name(classinstance=t): t for t in self.tools_}
         self.model = self.model.bind_tools(self.tools_)
 
+    @staticmethod
+    def get_name(classinstance:Any):
+        try:
+            return classinstance.name
+        except BaseException:
+            return classinstance.__name__
+        
     def exists_action(self, state: AgentState):
         result = state['messages'][-1]
         return len(result.tool_calls) > 0
@@ -119,7 +126,7 @@ if __name__ == "__main__":
     args_ = fileParser()
 
     model = ChatOpenAIRateLimited() 
-    tool = searchtool.search_tool()
+    tool = searchtool.search_tool
     abot = Agent(uncompiledgraph= StateGraph(AgentState), model=model, tools_=[tool], checkpointer=memory, description=prompt)
     
     if args_.run:
