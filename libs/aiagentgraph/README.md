@@ -131,4 +131,14 @@ Run python script with flag `--savegraph`.
 [3]: Ridnik, T. et al. "Code Generation with AlphaCodium: From Prompt Engineering to Flow Engineering" 16 Jan. 2024, [link](https://arxiv.org/pdf/2401.08500)
 
 # Contributions
-This repo follows the `deeplearning.ai` course "AI Agents in LangGraph", with some modifications.
+Information about contributing to this project.
+
+## Semantic versioning
+Makes use of a 3-part version numbers, major.minor.patch, where the project verion increments are:
+
+- major: when they make incompatible API changes,
+- minor: when they add functionality in a backwards-compatible manner, and
+- patch: when they make backwards-compatible bug fixes.
+
+## Original sources
+This repo started from the `deeplearning.ai` course "AI Agents in LangGraph", with modifications.
