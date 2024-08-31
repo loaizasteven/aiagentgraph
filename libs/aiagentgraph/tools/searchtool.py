@@ -14,7 +14,10 @@ def search_tool(max_results: int, input:Union[str,Dict, ToolCall]) -> List:
         List of results
     """
     search =TavilySearchResults(max_results=max_results)
-    results = search.invoke(input)
-    getContent = lambda x:x.get('content')
+    try:
+        results = search.invoke(input)
+        getContent = lambda x:x.get('content')
 
-    return list(map(getContent, results))
+        return list(map(getContent, results))
+    except (AttributeError):
+        return [results]
