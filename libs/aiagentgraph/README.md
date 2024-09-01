@@ -119,8 +119,9 @@ Human in the Loop are essential interations between person(s) and LLM-Agents. Ad
 [Interactive Python Example](/langGraphAgent/humanloopagent.py)
 
 ### Graph Visualization
-Run python script with flag `--savegraph`.
-![image](langGraphAgent/visual/graphagent.png)
+Run python script with flag `--savegraph`. 
+
+![image](./langGraphAgent/visual/graphagent.png)
 
 # Reference
 
